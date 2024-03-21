@@ -1,1 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mushroom Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            padding: 20px;
+        }
+        #container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #image-upload {
+            display: none;
+        }
+        #result {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        #image-preview {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+        #upload-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #upload-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Mushroom Classifier</h1>
+        <input type="file" id="image-upload" accept="image/*">
+        <label for="image-upload" id="upload-button">Upload Mushroom Image</label>
+        <div id="result"></div>
+        <img id="image-preview" src="#" alt="Mushroom Preview">
+        <div id="grade-a-page" class="hidden"></div>
+        <div id="grade-b-page" class="hidden"></div>
+        <div id="grade-c-page" class="hidden"></div>
+        <div id="rejected-page" class="hidden"></div>
+    </div>
 
+
+    <script >
+        const imageUpload = document.getElementById('image-upload');
+        const resultDisplay = document.getElementById('result');
+        const imagePreview = document.getElementById('image-preview');
+
+        imageUpload.addEventListener('change', async function () {
+            const file = this.files[0];
+            if (file) {
+                // Display image preview
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                // Send image to the backend for classification
+                const formData = new FormData();
+                formData.append('image', file);
+
+                try {
+                    const response = await fetch('/classify', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    const data = await response.json();
+                    resultDisplay.innerText = `Classification: ${data.result}`;
+                } catch (error) {
+                    resultDisplay.innerText = 'Error classifying the mushroom.';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
